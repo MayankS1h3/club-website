@@ -7,6 +7,7 @@ import {env} from './config/env.js'
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import eventRoutes from './routes/event.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/api/v1/health', (req,res) => {res.json({ok: true})});
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/events', eventRoutes);
+app.use('/api/v1/uploads', uploadRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

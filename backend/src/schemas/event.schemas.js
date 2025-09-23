@@ -9,7 +9,7 @@ export const createEventSchema = z.object({
     dj_artist: z.string().optional(),
     ticket_price: z.number().min(0, 'Ticket price must be positive').default(0),
     max_capacity: z.number().int().min(1, 'Max capacity must be at least 1'),
-    poster_image_url: z.string().url('Invalid poster image URL').optional()
+    poster_image_url: z.string().optional() // Can be a URL or a local path from upload
   })
 });
 
@@ -22,7 +22,7 @@ export const updateEventSchema = z.object({
     dj_artist: z.string().optional(),
     ticket_price: z.number().min(0).optional(),
     max_capacity: z.number().int().min(1).optional(),
-    poster_image_url: z.string().url().optional(),
+    poster_image_url: z.string().optional(), // Can be a URL or a local path from upload
     status: z.enum(['active', 'cancelled', 'sold_out']).optional()
   })
 });

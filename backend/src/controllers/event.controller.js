@@ -1,10 +1,17 @@
 import { eventService } from '../services/event.service.js';
+import { uploadService } from '../services/upload.service.js';
 
 // Admin Controllers (Protected)
 export async function createEvent(req, res, next) {
   try {
     const eventData = req.body;
     const adminId = req.admin.id;
+    
+    // Handle uploaded poster image if present
+    if (req.file) {
+      const fileInfo = uploadService.processUploadedFile(req.file);
+      eventData.poster_image_url = fileInfo.url;
+    }
     
     const event = await eventService.createEvent(eventData, adminId);
     
@@ -51,6 +58,22 @@ export async function updateEvent(req, res, next) {
     const eventId = parseInt(req.params.id);
     const eventData = req.body;
     
+    // Get current event to handle old poster deletion
+    const currentEvent = await eventService.getEventById(eventId);
+    
+    // Handle uploaded poster image if present
+    if (req.file) {
+      const fileInfo = uploadService.processUploadedFile(req.file);
+      eventData.poster_image_url = fileInfo.url;
+      
+      // Delete old poster if it exists (async, don't wait)
+      if (currentEvent && currentEvent.poster_image_url) {
+        uploadService.deleteOldPoster(currentEvent.poster_image_url).catch(err => 
+          console.error('Failed to delete old poster:', err)
+        );
+      }
+    }
+    
     const event = await eventService.updateEvent(eventId, eventData);
     
     res.json({
@@ -67,7 +90,17 @@ export async function deleteEvent(req, res, next) {
   try {
     const eventId = parseInt(req.params.id);
     
+    // Get event to delete associated poster image
+    const event = await eventService.getEventById(eventId);
+    
     await eventService.deleteEvent(eventId);
+    
+    // Delete poster image if it exists (async, don't wait)
+    if (event && event.poster_image_url) {
+      uploadService.deleteOldPoster(event.poster_image_url).catch(err => 
+        console.error('Failed to delete event poster:', err)
+      );
+    }
     
     res.json({
       success: true,

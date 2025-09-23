@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middlewares/validate.middleware.js';
 import { requireAdminAuth } from '../middlewares/adminAuth.middleware.js';
+import { uploadEventPoster, handleUploadError } from '../middlewares/upload.middleware.js';
 import { createEventSchema, updateEventSchema, eventIdSchema } from '../schemas/event.schemas.js';
 import { 
   createEvent, 
@@ -19,7 +20,9 @@ const r = Router();
 
 // Admin Routes (Protected)
 r.post('/', 
-  requireAdminAuth(env.JWT_SECRET), 
+  requireAdminAuth(env.JWT_SECRET),
+  uploadEventPoster,
+  handleUploadError,
   validate(createEventSchema), 
   createEvent
 );
@@ -36,7 +39,9 @@ r.get('/admin/:id',
 );
 
 r.put('/:id', 
-  requireAdminAuth(env.JWT_SECRET), 
+  requireAdminAuth(env.JWT_SECRET),
+  uploadEventPoster,
+  handleUploadError,
   validate(eventIdSchema), 
   validate(updateEventSchema), 
   updateEvent
