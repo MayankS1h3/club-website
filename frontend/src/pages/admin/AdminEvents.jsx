@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -8,7 +8,8 @@ import {
   Edit,
   Trash2,
   Filter,
-  ChevronDown
+  ChevronDown,
+  CheckCircle
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -20,6 +21,17 @@ const AdminEvents = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [currentFilter, setCurrentFilter] = useState('all');
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    // Check for success message from navigation state
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     // Check if there's a filter in URL params
@@ -100,7 +112,7 @@ const AdminEvents = () => {
     }
 
     try {
-      await api.delete(`/admin/events/${eventId}`);
+      await api.delete(`/events/${eventId}`);
       setEvents(events.filter(event => event.id !== eventId));
     } catch (error) {
       console.error('Failed to delete event:', error);
@@ -148,6 +160,20 @@ const AdminEvents = () => {
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-md p-4">
+          <div className="flex">
+            <CheckCircle className="h-5 w-5 text-green-400" />
+            <div className="ml-3">
+              <p className="text-sm font-medium text-green-800">
+                {successMessage}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

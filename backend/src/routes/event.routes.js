@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../middlewares/validate.middleware.js';
 import { requireAdminAuth } from '../middlewares/adminAuth.middleware.js';
 import { uploadEventPoster, handleUploadError } from '../middlewares/upload.middleware.js';
+import { preprocessEventData } from '../middlewares/preprocess.middleware.js';
 import { createEventSchema, updateEventSchema, eventIdSchema } from '../schemas/event.schemas.js';
 import { 
   createEvent, 
@@ -23,6 +24,7 @@ r.post('/',
   requireAdminAuth(env.JWT_SECRET),
   uploadEventPoster,
   handleUploadError,
+  preprocessEventData,
   validate(createEventSchema), 
   createEvent
 );
@@ -54,6 +56,11 @@ r.delete('/:id',
 );
 
 // Public Routes (No Auth Required)
+r.get('/', getAllEventsAdmin); // Public access to events list
+r.get('/:id', 
+  validate(eventIdSchema), 
+  getEventByIdAdmin
+); // Public access to single event
 r.get('/calendar', getEventCalendar);
 r.get('/upcoming', getUpcomingEvents);
 r.get('/today', getTodaysEvents);

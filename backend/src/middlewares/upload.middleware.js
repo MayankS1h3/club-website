@@ -32,6 +32,8 @@ export const uploadMultipleGallery = createUpload('gallery').array('images', 10)
 
 // Error handling middleware for multer
 export const handleUploadError = (error, req, res, next) => {
+  console.error('Upload middleware error:', error);
+  
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
@@ -43,6 +45,15 @@ export const handleUploadError = (error, req, res, next) => {
   
   if (error.message.includes('Invalid file type')) {
     return res.status(400).json({ error: error.message });
+  }
+  
+  // Cloudinary or network errors - log but don't fail the request
+  if (error.message.includes('cloudinary') || error.name === 'CloudinaryError') {
+    console.error('Cloudinary error - proceeding without image:', error.message);
+    // Clear the file from request and continue
+    req.file = null;
+    next();
+    return;
   }
   
   next(error);

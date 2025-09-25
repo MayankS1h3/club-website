@@ -5,6 +5,8 @@ import AdminLayout from './components/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminEvents from './pages/admin/AdminEvents';
+import CreateEvent from './pages/admin/CreateEvent';
+import EditEvent from './pages/admin/EditEvent';
 import './App.css';
 
 function App() {
@@ -30,8 +32,8 @@ function App() {
             >
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="events" element={<AdminEvents />} />
-              <Route path="events/new" element={<div className="p-8"><h1 className="text-2xl font-bold">Create Event (Coming Soon)</h1></div>} />
-              <Route path="events/:id/edit" element={<div className="p-8"><h1 className="text-2xl font-bold">Edit Event (Coming Soon)</h1></div>} />
+              <Route path="events/new" element={<CreateEvent />} />
+              <Route path="events/:id/edit" element={<EditEvent />} />
               <Route path="gallery" element={<div className="p-8"><h1 className="text-2xl font-bold">Gallery Management (Coming Soon)</h1></div>} />
               <Route path="settings" element={<div className="p-8"><h1 className="text-2xl font-bold">Settings (Coming Soon)</h1></div>} />
             </Route>

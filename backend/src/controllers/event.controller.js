@@ -4,16 +4,45 @@ import { uploadService } from '../services/upload.service.js';
 // Admin Controllers (Protected)
 export async function createEvent(req, res, next) {
   try {
+    console.log('=== CREATE EVENT DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file ? 'File present' : 'No file');
+    console.log('Admin ID:', req.admin.id);
+    
     const eventData = req.body;
     const adminId = req.admin.id;
     
     // Handle uploaded poster image if present
     if (req.file) {
-      const fileInfo = uploadService.processUploadedFile(req.file);
-      eventData.poster_image_url = fileInfo.url;
+      try {
+        console.log('🖼️ Processing uploaded file...');
+        console.log('File details:', {
+          fieldname: req.file.fieldname,
+          originalname: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+          path: req.file.path || 'No path (memory storage)',
+          cloudinary_public_id: req.file.public_id || 'No public_id'
+        });
+        
+        const fileInfo = uploadService.processUploadedFile(req.file);
+        if (fileInfo && fileInfo.url) {
+          eventData.poster_image_url = fileInfo.url;
+          console.log('✅ File processed successfully, URL:', fileInfo.url);
+        } else {
+          console.log('⚠️ File processing returned no URL, proceeding without image');
+        }
+      } catch (fileError) {
+        console.error('❌ Error processing uploaded file:', fileError);
+        console.log('Proceeding without image due to upload error');
+      }
+    } else {
+      console.log('📝 No file uploaded');
     }
     
+    console.log('Creating event with data:', eventData);
     const event = await eventService.createEvent(eventData, adminId);
+    console.log('Event created successfully:', event.id);
     
     res.status(201).json({
       success: true,
@@ -21,6 +50,9 @@ export async function createEvent(req, res, next) {
       event
     });
   } catch (error) {
+    console.error('=== CREATE EVENT ERROR ===');
+    console.error('Error:', error);
+    console.error('Stack:', error.stack);
     next(error);
   }
 }
